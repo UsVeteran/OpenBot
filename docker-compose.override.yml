@@ -1,0 +1,18 @@
+# Local override (auto-merged by `docker compose`). The API server runs on the host and reads
+# OPENAI_BASE_URL=http://localhost:11434/v1 from .env; the Bots run in containers, where the Mac's
+# Ollama is reachable at host.docker.internal instead.
+services:
+  # Loopback only (2026-10-18, LAN-exposure fix, Leantime #554). Host consumers use 127.0.0.1;
+  # containers reach the host through host.docker.internal, which colima maps to host loopback.
+  postgres:
+    ports: !override
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+  supervisor:
+    ports: !override
+      - "127.0.0.1:${SUPERVISOR_PORT:-4500}:4300"
+  agent-bot:
+    environment:
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL_CONTAINERS:-http://host.docker.internal:11434/v1}
+  agent-langgraph:
+    environment:
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL_CONTAINERS:-http://host.docker.internal:11434/v1}

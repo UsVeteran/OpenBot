@@ -440,6 +440,10 @@ const asChannelSocket = (ws: { data: SocketData }) =>
 
 serve<SocketData>({
   port,
+  // Loopback by default (2026-10-18, Leantime #554): with no identity provider this server admits
+  // every caller as the single administrator. Containers still reach it via host.docker.internal,
+  // which colima maps to host loopback. Set OPENBOT_BIND_HOST=0.0.0.0 to expose it deliberately.
+  hostname: process.env.OPENBOT_BIND_HOST || "127.0.0.1",
   async fetch(request, server) {
     const url = new URL(request.url);
     const streamBotId = streamPathBotId(url.pathname);
